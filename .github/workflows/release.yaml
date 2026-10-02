@@ -1,0 +1,147 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - flake.nix
+      - flake.lock
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & Release
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Read release version
+        id: version
+        run: |
+          CACHYOS_TAG=$(jq -r '.nodes["kernel-src"].original.ref' flake.lock)
+          case "${CACHYOS_TAG}" in
+            cachyos-[0-9]*) ;;
+            *)
+              echo "::error::Invalid CachyOS release tag: ${CACHYOS_TAG}"
+              exit 1
+              ;;
+          esac
+          VERSION=${CACHYOS_TAG#cachyos-}
+          VERSION=${VERSION%-*}
+
+          {
+            echo "version=${VERSION}"
+            echo "tag=v${CACHYOS_TAG#cachyos-}"
+            echo "cachyos_tag=${CACHYOS_TAG}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Check whether release exists
+        id: check-release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+          elif gh release view "${TAG}" >/dev/null 2>&1; then
+            echo "Release ${TAG} already exists"
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Maximize build space
+        if: steps.check-release.outputs.should_release == 'true'
+        uses: easimon/maximize-build-space@c28619d8999a147d5e09c1199f84ff6af6ad5794 # master
+        with:
+          root-reserve-mb: 8192
+          temp-reserve-mb: 1024
+          swap-size-mb: 4096
+          build-mount-path: /nix
+          remove-dotnet: true
+          remove-android: true
+          remove-haskell: true
+          remove-codeql: true
+          remove-docker-images: true
+
+      - name: Install Nix
+        if: steps.check-release.outputs.should_release == 'true'
+        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Xilo cache
+        if: steps.check-release.outputs.should_release == 'true'
+        uses: stubbedev/xilo@4528483a1a261f5ed6578606d30526c6a908d1b4 # v1.2.2
+        with:
+          url: https://xilo.plexuz.xyz
+          cache: ${{ secrets.XILO_CACHE || 'admin/krezh' }}
+          token: ${{ secrets.XILO_TOKEN }}
+
+      - name: Build kernel
+        if: steps.check-release.outputs.should_release == 'true'
+        run: nix build .#linux-cachyos --log-format bar-with-logs
+
+      - name: Push to Xilo
+        if: steps.check-release.outputs.should_release == 'true'
+        env:
+          CACHE_NAME: ${{ secrets.XILO_CACHE || 'admin/krezh' }}
+        run: |
+          for attempt in 1 2 3 4 5; do
+            if xilo push "${CACHE_NAME}" ./result; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 5 ]; then
+              exit 1
+            fi
+            sleep 5
+          done
+
+      - name: Fetch CachyOS changelog
+        if: steps.check-release.outputs.should_release == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CACHYOS_TAG: ${{ steps.version.outputs.cachyos_tag }}
+        run: |
+          CHANGELOG=$(gh release view "${CACHYOS_TAG}" -R CachyOS/linux --json body --jq .body 2>/dev/null || true)
+          if [ -z "${CHANGELOG}" ]; then
+            CHANGELOG="Changelog not found for upstream release ${CACHYOS_TAG}."
+          fi
+
+          cat <<EOF > release-notes.md
+          ## Upstream CachyOS Changelog
+
+          ${CHANGELOG}
+
+          ---
+
+          The kernel was built and pushed to [Xilo](https://xilo.plexuz.xyz).
+
+          \`\`\`nix
+          inputs.nix-cachyos-kernel.url = "github:${{ github.repository }}/${{ steps.version.outputs.tag }}";
+          \`\`\`
+          EOF
+
+      - name: Create release
+        if: steps.check-release.outputs.should_release == 'true'
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: CachyOS Linux ${{ steps.version.outputs.version }}
+          body_path: release-notes.md
+          draft: false
+          prerelease: false
