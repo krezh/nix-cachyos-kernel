@@ -1,0 +1,63 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: ["github>krezh/renovate-config"],
+  nix: {
+    enabled: true,
+  },
+  customManagers: [
+    {
+      customType: "regex",
+      description: "Track CachyOS Linux releases",
+      managerFilePatterns: ["(^|/)flake\\.nix$"],
+      matchStrings: [
+        'kernel-src\\s*=\\s*\\{\\s*url\\s*=\\s*"github:CachyOS/linux/(?<currentValue>cachyos-[^"]+)"',
+      ],
+      datasourceTemplate: "github-releases",
+      depNameTemplate: "CachyOS/linux",
+      packageNameTemplate: "CachyOS/linux",
+      versioningTemplate: "regex:^cachyos-(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?(?:-(?<build>\\d+))?$",
+    },
+  ],
+  packageRules: [
+    {
+      description: "CachyOS Kernel release updates",
+      matchPackageNames: ["CachyOS/linux"],
+      semanticCommitType: "chore",
+      semanticCommitScope: "kernel",
+      commitMessageTopic: "CachyOS kernel",
+      commitMessageExtra: "( {{currentVersion}} → {{newVersion}} )",
+      postUpgradeTasks: {
+        commands: [
+          'nix --extra-experimental-features "nix-command flakes" flake update kernel-src cachyos-config kernel-patches',
+        ],
+        fileFilters: [
+          "flake.nix",
+          "flake.lock",
+        ],
+        executionMode: "update",
+      },
+      automerge: true,
+      automergeType: "pr",
+      ignoreTests: false,
+    },
+    {
+      description: "Update CachyOS inputs only with kernel releases",
+      matchManagers: ["nix"],
+      matchDepNames: ["kernel-src", "cachyos-config", "kernel-patches"],
+      enabled: false,
+    },
+    {
+      description: "Keep the tested kernel toolchain pinned",
+      matchManagers: ["nix"],
+      matchDepNames: ["nixpkgs"],
+      enabled: false,
+    },
+    {
+      description: "Nix flake lockfile maintenance",
+      matchManagers: ["nix"],
+      automerge: true,
+      automergeType: "pr",
+      ignoreTests: false,
+    },
+  ],
+}
