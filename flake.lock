@@ -1,0 +1,79 @@
+{
+  "nodes": {
+    "cachyos-config": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791032864,
+        "narHash": "sha256-rD2mEi6e5HuVrVWUqL4saUjMucmriUIUqzYZKMldPP0=",
+        "owner": "CachyOS",
+        "repo": "linux-cachyos",
+        "rev": "b11ba14854d9748bdb3e3daf7a90e8d3a31004ec",
+        "type": "github"
+      },
+      "original": {
+        "owner": "CachyOS",
+        "repo": "linux-cachyos",
+        "type": "github"
+      }
+    },
+    "kernel-patches": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791032477,
+        "narHash": "sha256-bRx0ODnJsZGiyr9Wn1kabIuz+h0jXZMYOk34xNlC7N4=",
+        "owner": "CachyOS",
+        "repo": "kernel-patches",
+        "rev": "227a7d1a2a402274e3fd6455aacb101e5dec4ed2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "CachyOS",
+        "repo": "kernel-patches",
+        "type": "github"
+      }
+    },
+    "kernel-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1790433598,
+        "narHash": "sha256-wLEb7n6RyQXBSx1mjhTj8jA7Y0Pwpc0DbHN2vntrqws=",
+        "owner": "CachyOS",
+        "repo": "linux",
+        "rev": "2b929db2eff77a4b1801fc43f6cc736728fd1706",
+        "type": "github"
+      },
+      "original": {
+        "owner": "CachyOS",
+        "ref": "cachyos-7.2.8-1",
+        "repo": "linux",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1790505892,
+        "narHash": "sha256-/pAz2XfqHS//WRn2xRjoqes7Z92qZ0Q1gufZZ3PtuwA=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "545c226a9af7f59fba5c3873f7c6a65e014c8f5f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "545c226a9af7f59fba5c3873f7c6a65e014c8f5f",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "cachyos-config": "cachyos-config",
+        "kernel-patches": "kernel-patches",
+        "kernel-src": "kernel-src",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

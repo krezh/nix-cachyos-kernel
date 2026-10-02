@@ -1,0 +1,85 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Pull Request
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build & Push Kernel
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@c28619d8999a147d5e09c1199f84ff6af6ad5794 # master
+        with:
+          root-reserve-mb: 8192
+          temp-reserve-mb: 1024
+          swap-size-mb: 4096
+          build-mount-path: /nix
+          remove-dotnet: true
+          remove-android: true
+          remove-haskell: true
+          remove-codeql: true
+          remove-docker-images: true
+
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Xilo cache
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        uses: stubbedev/xilo@4528483a1a261f5ed6578606d30526c6a908d1b4 # v1.2.2
+        with:
+          url: https://xilo.plexuz.xyz
+          cache: ${{ secrets.XILO_CACHE || 'admin/krezh' }}
+          token: ${{ secrets.XILO_TOKEN }}
+
+      - name: Check flake
+        run: nix flake check --no-build
+
+      - name: Build kernel
+        run: nix build .#linux-cachyos --log-format bar-with-logs --print-out-paths
+
+      - name: Push to Xilo
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          CACHE_NAME: ${{ secrets.XILO_CACHE || 'admin/krezh' }}
+        run: |
+          for attempt in 1 2 3 4 5; do
+            if xilo push "${CACHE_NAME}" ./result; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 5 ]; then
+              exit 1
+            fi
+            sleep 5
+          done
+
+  success:
+    name: Success
+    if: always()
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check build result
+        env:
+          RESULT: ${{ needs.build.result }}
+        run: test "${RESULT}" = "success"
