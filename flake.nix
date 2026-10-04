@@ -15,10 +15,6 @@
       flake = false;
     };
 
-    kernel-patches = {
-      url = "github:CachyOS/kernel-patches";
-      flake = false;
-    };
   };
 
   nixConfig = {

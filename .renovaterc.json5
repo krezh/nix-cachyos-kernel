@@ -28,7 +28,7 @@
       commitMessageExtra: "( {{currentVersion}} → {{newVersion}} )",
       postUpgradeTasks: {
         commands: [
-          'nix --extra-experimental-features "nix-command flakes" flake update kernel-src cachyos-config kernel-patches',
+          'nix --extra-experimental-features "nix-command flakes" flake update kernel-src cachyos-config',
         ],
         fileFilters: [
           "flake.nix",
@@ -43,7 +43,7 @@
     {
       description: "Update CachyOS inputs only with kernel releases",
       matchManagers: ["nix"],
-      matchDepNames: ["kernel-src", "cachyos-config", "kernel-patches"],
+      matchDepNames: ["kernel-src", "cachyos-config"],
       enabled: false,
     },
     {
