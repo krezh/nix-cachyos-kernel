@@ -3,7 +3,7 @@
 
   inputs = {
     # Newer nixpkgs LLVM closures leave local libbpf symbols unresolved in resolve_btfids.
-    nixpkgs.url = "github:NixOS/nixpkgs/545c226a9af7f59fba5c3873f7c6a65e014c8f5f";
+    nixpkgs.url = "github:NixOS/nixpkgs/3bd8e45a3996a8aece3226f7a60cb52433dc9c21";
 
     kernel-src = {
       url = "github:CachyOS/linux/cachyos-7.2.8-1";
