@@ -68,8 +68,8 @@
       legacyPackages.${system} = packageSet;
       overlay = self.overlays.default;
 
-      overlays.default = final: _prev: {
-        cachyosKernels = mkPackages final;
+      overlays.default = _final: _prev: {
+        cachyosKernels = packageSet;
       };
     };
 }
