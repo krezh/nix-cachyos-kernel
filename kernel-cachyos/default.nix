@@ -307,6 +307,7 @@ let
 
         extraMeta = {
           description = "Configurable Linux CachyOS kernel";
+          changelog = "https://github.com/krezh/nix-cachyos-kernel/releases";
           broken = !stdenv.hostPlatform.isx86_64;
         };
 
