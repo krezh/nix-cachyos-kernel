@@ -117,24 +117,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CACHYOS_TAG: ${{ steps.version.outputs.cachyos_tag }}
         run: |
-          CHANGELOG=$(gh release view "${CACHYOS_TAG}" -R CachyOS/linux --json body --jq .body 2>/dev/null || true)
-          if [ -z "${CHANGELOG}" ]; then
-            CHANGELOG="Changelog not found for upstream release ${CACHYOS_TAG}."
-          fi
-
-          cat <<EOF > release-notes.md
-          ## Upstream CachyOS Changelog
-
-          ${CHANGELOG}
-
-          ---
-
-          The kernel was built and pushed to [Xilo](https://xilo.plexuz.xyz).
-
-          \`\`\`nix
-          inputs.nix-cachyos-kernel.url = "github:${{ github.repository }}/${{ steps.version.outputs.tag }}";
-          \`\`\`
-          EOF
+          gh release view "${CACHYOS_TAG}" \
+            -R CachyOS/linux \
+            --json body \
+            --jq .body > release-notes.md
+          test -s release-notes.md
 
       - name: Create release
         if: steps.check-release.outputs.should_release == 'true'
