@@ -56,7 +56,7 @@ jobs:
         run: nix flake check --no-build
 
       - name: Build kernel
-        run: nix build .#linux-cachyos --log-format bar-with-logs --print-out-paths
+        run: nix build '.#linux-cachyos^*' --log-format bar-with-logs --print-out-paths
 
       - name: Push to Xilo
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository

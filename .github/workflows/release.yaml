@@ -94,7 +94,7 @@ jobs:
 
       - name: Build kernel
         if: steps.check-release.outputs.should_release == 'true'
-        run: nix build .#linux-cachyos --log-format bar-with-logs
+        run: nix build '.#linux-cachyos^*' --log-format bar-with-logs
 
       - name: Push to Xilo
         if: steps.check-release.outputs.should_release == 'true'
