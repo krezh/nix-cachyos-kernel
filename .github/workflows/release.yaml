@@ -86,7 +86,7 @@ jobs:
 
       - name: Setup Xilo cache
         if: steps.check-release.outputs.should_release == 'true'
-        uses: stubbedev/xilo@ec04ce2ba6615a728a18c3a9b50ebde75440d4da # v1.2.4
+        uses: stubbedev/xilo@cc29514b2bc5c5ae4d6f6281b7706106b8a1300f # v1.2.5
         with:
           url: https://xilo.plexuz.xyz
           cache: ${{ secrets.XILO_CACHE || 'admin/krezh' }}
