@@ -9,6 +9,8 @@ on:
     paths:
       - flake.nix
       - flake.lock
+      - VERSION
+      - kernel-cachyos/sources.nix
   workflow_dispatch:
 
 concurrency:
@@ -30,7 +32,7 @@ jobs:
       - name: Read release version
         id: version
         run: |
-          CACHYOS_TAG=$(jq -r '.nodes["kernel-src"].original.ref' flake.lock)
+          CACHYOS_TAG=$(<VERSION)
           case "${CACHYOS_TAG}" in
             cachyos-[0-9]*) ;;
             *)

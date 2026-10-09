@@ -8,9 +8,9 @@
     {
       customType: "regex",
       description: "Track CachyOS Linux releases",
-      managerFilePatterns: ["(^|/)flake\\.nix$"],
+      managerFilePatterns: ["(^|/)VERSION$"],
       matchStrings: [
-        'kernel-src\\s*=\\s*\\{\\s*url\\s*=\\s*"github:CachyOS/linux/(?<currentValue>cachyos-[^"]+)"',
+        "^(?<currentValue>cachyos-[0-9]+\\.[0-9]+(?:\\.[0-9]+)?(?:-[0-9]+)?)\\s*$",
       ],
       datasourceTemplate: "github-releases",
       depNameTemplate: "CachyOS/linux",
@@ -28,23 +28,17 @@
       commitMessageExtra: "( {{currentVersion}} → {{newVersion}} )",
       postUpgradeTasks: {
         commands: [
-          'nix --extra-experimental-features "nix-command flakes" flake update kernel-src cachyos-config kernel-patches',
+          'nix --extra-experimental-features "nix-command flakes" run .#update-sources',
         ],
         fileFilters: [
-          "flake.nix",
-          "flake.lock",
+          "VERSION",
+          "kernel-cachyos/sources.nix",
         ],
         executionMode: "update",
       },
       automerge: true,
       automergeType: "pr",
       ignoreTests: false,
-    },
-    {
-      description: "Update CachyOS inputs only with kernel releases",
-      matchManagers: ["nix"],
-      matchDepNames: ["kernel-src", "cachyos-config", "kernel-patches"],
-      enabled: false,
     },
     {
       description: "Keep the tested kernel toolchain pinned",

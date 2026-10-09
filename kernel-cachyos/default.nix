@@ -1,7 +1,8 @@
 {
-  inputs,
+  sources,
   applyPatches,
   buildLinux,
+  fetchFromGitHub,
   callPackage,
   kernelPatches,
   lib,
@@ -10,23 +11,19 @@
   ...
 }:
 let
-  makefileLines = lib.splitString "\n" (builtins.readFile (inputs.kernel-src + "/Makefile"));
-  makeValue =
-    name:
-    lib.removePrefix "${name} = " (
-      lib.findFirst (lib.hasPrefix "${name} = ") (throw "Missing ${name} in the kernel Makefile")
-        makefileLines
-    );
-  version = lib.concatStringsSep "." (
-    map makeValue [
-      "VERSION"
-      "PATCHLEVEL"
-      "SUBLEVEL"
-    ]
-  );
+  release = lib.removeSuffix "\n" (builtins.readFile ../VERSION);
+  versionMatch = builtins.match "cachyos-([0-9]+\\.[0-9]+\\.[0-9]+)-[0-9]+" release;
+  version =
+    if versionMatch == null then
+      throw "VERSION must contain a CachyOS release tag such as cachyos-7.2.8-1"
+    else
+      builtins.head versionMatch;
   patchVersion = lib.versions.majorMinor version;
 
-  cachyosConfigFile = inputs.cachyos-config + "/linux-cachyos/config";
+  kernelSrc = fetchFromGitHub sources.kernel;
+  configSrc = fetchFromGitHub sources.config;
+  patchesSrc = fetchFromGitHub sources.patches;
+  cachyosConfigFile = configSrc + "/linux-cachyos/config";
   helpers = callPackage ../helpers.nix { };
 
   settings = with lib.kernel; {
@@ -185,7 +182,7 @@ let
     assert autofdo != false -> lto != "none";
     assert cpusched == "rt" || cpusched == "rt-bore" -> rt;
     let
-      cachyosPatches = builtins.map (patch: "${inputs.kernel-patches}/${patchVersion}/${patch}") (
+      cachyosPatches = builtins.map (patch: "${patchesSrc}/${patchVersion}/${patch}") (
         lib.optional (cpusched == "bore" || cpusched == "rt-bore") "sched/0001-bore-cachy.patch"
         ++ lib.optional (cpusched == "bmq") "sched/0001-prjc-cachy.patch"
         ++ lib.optional hardened "misc/0001-hardened.patch"
@@ -195,7 +192,7 @@ let
       );
       patchedSrc = applyPatches {
         name = "linux-src-patched";
-        src = inputs.kernel-src;
+        src = kernelSrc;
         patches = [
           kernelPatches.bridge_stp_helper.patch
           kernelPatches.request_key_helper.patch

@@ -1,12 +1,12 @@
 {
-  inputs,
+  sources,
   callPackage,
   linuxKernel,
   ...
 }:
 let
   helpers = callPackage ../helpers.nix { };
-  kernel = (callPackage ./. { inherit inputs; }).linux-cachyos;
+  kernel = (callPackage ./. { inherit sources; }).linux-cachyos;
   packages = helpers.kernelModuleLLVMOverride (linuxKernel.packagesFor kernel);
 in
 {
