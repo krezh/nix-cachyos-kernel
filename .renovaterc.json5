@@ -8,7 +8,7 @@
     {
       customType: "regex",
       description: "Track CachyOS Linux releases",
-      managerFilePatterns: ["(^|/)VERSION$"],
+      managerFilePatterns: ["VERSION"],
       matchStrings: [
         "^(?<currentValue>cachyos-[0-9]+\\.[0-9]+(?:\\.[0-9]+)?(?:-[0-9]+)?)\\s*$",
       ],
