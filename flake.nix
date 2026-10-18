@@ -46,7 +46,7 @@
           pkgs.coreutils
           pkgs.jq
           pkgs.nix-prefetch-github
-          nix-prefetch-git
+          pkgs.nix-prefetch-git
         ];
         text = builtins.readFile ./.github/scripts/update-sources.sh;
       };
