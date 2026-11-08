@@ -91,7 +91,7 @@ jobs:
         uses: stubbedev/xilo@d99c760085bbb83dca1c07cb5298d88e3835b83f # v1.2.7
         with:
           url: https://xilo.plexuz.xyz
-          cache: ${{ secrets.XILO_CACHE || 'admin/krezh' }}
+          cache: ${{ secrets.XILO_CACHE }}
           token: ${{ secrets.XILO_TOKEN }}
 
       - name: Build kernel
