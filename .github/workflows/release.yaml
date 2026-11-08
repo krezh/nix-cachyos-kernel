@@ -101,7 +101,7 @@ jobs:
       - name: Push to Xilo
         if: steps.check-release.outputs.should_release == 'true'
         env:
-          CACHE_NAME: ${{ secrets.XILO_CACHE || 'admin/krezh' }}
+          CACHE_NAME: ${{ secrets.XILO_CACHE }}
         run: |
           for attempt in 1 2 3 4 5; do
             if xilo push "${CACHE_NAME}" ./result*; then
