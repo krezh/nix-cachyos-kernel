@@ -30,21 +30,12 @@
         commands: [
           'nix --extra-experimental-features "nix-command flakes" run .#update-sources',
         ],
-        fileFilters: [
-          "VERSION",
-          "kernel-cachyos/sources.nix",
-        ],
+        fileFilters: ["VERSION", "kernel-cachyos/sources.nix"],
         executionMode: "update",
       },
       automerge: true,
       automergeType: "pr",
       ignoreTests: false,
-    },
-    {
-      description: "Keep the tested kernel toolchain pinned",
-      matchManagers: ["nix"],
-      matchDepNames: ["nixpkgs"],
-      enabled: false,
     },
     {
       description: "Nix flake lockfile maintenance",
