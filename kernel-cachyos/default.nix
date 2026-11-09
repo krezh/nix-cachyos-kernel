@@ -221,6 +221,7 @@ let
           HID = yes;
           CACHY = yes;
           MQ_IOSCHED_ADIOS = yes;
+          RUST = no;
         }
         // settings.lto.${lto}
         // lib.optionalAttrs (cpusched != null) settings.cpusched.${cpusched}
@@ -255,9 +256,6 @@ let
         }
         // lib.optionalAttrs (autofdo != false) {
           AUTOFDO_CLANG = yes;
-        }
-        // lib.optionalAttrs hardened {
-          RUST = no;
         }
         // structuredExtraConfig;
     in
