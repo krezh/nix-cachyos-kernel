@@ -46,7 +46,7 @@ jobs:
 
       - name: Setup Xilo cache
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-        uses: stubbedev/xilo@db459a1e5524e5ee578a6956399fc88ba0175046 # v1.2.12
+        uses: stubbedev/xilo@e23c96316500d2e4b668f20313ef3c76e103b5d9 # v2.0.2
         with:
           url: https://xilo.plexuz.xyz
           cache: ${{ secrets.XILO_CACHE || 'admin/krezh' }}
