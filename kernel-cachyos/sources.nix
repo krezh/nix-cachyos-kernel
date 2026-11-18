@@ -2,8 +2,8 @@
   kernel = {
     owner = "CachyOS";
     repo = "linux";
-    rev = "f6a0828f06cb5dfee3affc3e3fba124da1e1cd4d";
-    hash = "sha256-xaTob/jJNYRUOelo/mEEdpx712jlU89J/prmgGmJuEY=";
+    rev = "1ac42d4fa557ecd640dd7283d1be49e1ad526492";
+    hash = "sha256-A653YJM30j1lmYvuPuTEWREvTzdv0YncFMStDneSO/o=";
   };
 
   config = {
