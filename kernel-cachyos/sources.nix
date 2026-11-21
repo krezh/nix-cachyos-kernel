@@ -2,22 +2,22 @@
   kernel = {
     owner = "CachyOS";
     repo = "linux";
-    rev = "f6a0828f06cb5dfee3affc3e3fba124da1e1cd4d";
-    hash = "sha256-xaTob/jJNYRUOelo/mEEdpx712jlU89J/prmgGmJuEY=";
+    rev = "1ac42d4fa557ecd640dd7283d1be49e1ad526492";
+    hash = "sha256-A653YJM30j1lmYvuPuTEWREvTzdv0YncFMStDneSO/o=";
   };
 
   config = {
     owner = "CachyOS";
     repo = "linux-cachyos";
-    rev = "271d7782ac4854255aec73370aa0e142afb5d3ba";
-    hash = "sha256-5Mi+N0Q/AI7enkRdoBOd3juvhqaCl/rSq/YMwHZA8vg=";
+    rev = "b3022c68bb51faccf596572195e8a21d34fdf5b5";
+    hash = "sha256-xyl6PSnA/IKTzqEZ/hCh6wUD9WOvs5nc25RBqk2/OKg=";
   };
 
   patches = {
     owner = "CachyOS";
     repo = "kernel-patches";
-    rev = "21d721415790e6717b2ece16e82e08eb98d16c00";
-    hash = "sha256-ss9yGbBH75Whu1n05QEx5ZOGff7NlLM20cD5Qa7fSPM=";
+    rev = "664442dd1a913ef8838453828d26ae13b2e7334d";
+    hash = "sha256-9VuqP4xNOIlTooCYTvsyz+AqHjrhXCglYwJFd5aOELQ=";
   };
 }
 
